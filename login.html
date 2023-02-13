@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name ="google-signin-client_id" 
+    content="304409922762-onmoti497gijonvppd0qf24314lmuaup.apps.googleusercontent.com">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul>
+        <li id="GgCustomLogin">
+        <a href="javascript:void(0)">
+         <span>Login with Google</span>
+        </a>
+       </li>
+      </ul>
+
+      <script>
+          function init() {
+            gapi.load('auth2', function() {
+                gapi.auth2.init();
+                options = new gapi.auth2.SigninOptionsBuilder();
+                // options.setPrompt('select_account');
+
+                //인스턴스의 함수 호출 - element에 로그인 기능 추가
+                options.setScope('email profile openid https://www.googleapis.com/auth/user.birthday.read');
+
+                // 설정한 options와 아래 성공, 아래는 실패시 실행하는 함수들
+                gapi.auth2.getAuthInstance().attachClickHandler('GgCustomLogin',options,onSignIn,onSibnInFailure);
+            })
+          }
+
+          function onSignIn(googleUser){
+            var access_token = googleUser.getAuthResponse().access_token
+            $.ajax({
+                //people api를 이용해서 프로필 및 생년월일에 대한 선택동의 후 가져옴
+                url: 'https://people.googleapis.com/v1/people/me'
+
+                //key에 내 api 넣기
+                , data: {personFields:'birthdays', key:'AIzaSyBxZOa8ABiih35K93t2WBAP8lNTrLSV8pk','access_token':access_token}
+                ,method:'GET'
+            })
+
+            // 프로필 가져오기
+            .done(function(e){
+                var profile = googleUser.getBasicProfile();
+                console.log(profile)
+            })
+            .fail(function(e){
+                console.log(e);
+            })
+          }
+
+          function onSibnInFailure(t){
+            console.log(t);
+          }
+
+      </script>
+
+      <script src="https://apis.google.com/js/platform.js?onload=init" asyne defer></script>
+
+</body>
+</html>
